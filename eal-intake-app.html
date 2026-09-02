@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EAL Intake — St. Mary's</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EEF1EC;
+    --card:#FFFDF8;
+    --ink:#232922;
+    --ink-soft:#5B6259;
+    --line:#D8DAD1;
+    --teal:#2F6E5B;
+    --teal-dark:#204B3F;
+    --teal-tint:#E4EEE9;
+    --rust:#B4552F;
+    --rust-tint:#F7E9E2;
+    --gold:#B4842E;
+    --gold-tint:#F6EEDD;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  html,body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Public Sans',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Lora',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  #app{
+    max-width:1080px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  header.top{
+    padding:22px 28px 14px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  header.top h1{
+    font-size:22px;
+    margin:0;
+    color:var(--teal-dark);
+  }
+  header.top .student-tag{
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+  header.top .student-tag strong{color:var(--ink);}
+
+  .layout{
+    display:flex;
+    flex:1;
+    min-height:0;
+  }
+  nav.rail{
+    width:230px;
+    flex-shrink:0;
+    border-right:1px solid var(--line);
+    padding:18px 10px;
+    overflow-y:auto;
+  }
+  nav.rail button{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    padding:9px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-family:'Public Sans',sans-serif;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.35;
+  }
+  nav.rail button .num{
+    font-family:'Lora',serif;
+    font-weight:600;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    width:20px;
+    flex-shrink:0;
+    padding-top:1px;
+  }
+  nav.rail button.active{
+    background:var(--teal-tint);
+    color:var(--teal-dark);
+  }
+  nav.rail button.active .num{color:var(--teal-dark);}
+  nav.rail button.done .num::after{content:'✓';margin-left:1px;}
+  nav.rail button:hover:not(.active){background:#F2F4F0;}
+
+  main.content{
+    flex:1;
+    padding:26px 34px 100px;
+    overflow-y:auto;
+  }
+  .section-head{margin-bottom:22px;}
+  .section-head h2{font-size:20px;margin:0 0 4px;}
+  .section-head p{margin:0;color:var(--ink-soft);font-size:14px;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    margin-bottom:14px;
+  }
+
+  label.field-label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  input[type=text],input[type=date],input[type=number],textarea{
+    width:100%;
+    font-family:'Public Sans',sans-serif;
+    font-size:14.5px;
+    padding:9px 11px;
+    border:1px solid var(--line);
+    border-radius:7px;
+    background:#fff;
+    color:var(--ink);
+  }
+  textarea{resize:vertical;min-height:60px;}
+  input:focus,textarea:focus,button:focus-visible{
+    outline:2px solid var(--teal);
+    outline-offset:1px;
+  }
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:600px){.two-col{grid-template-columns:1fr;}}
+
+  .qrow{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    padding:13px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .qrow:last-child{border-bottom:none;}
+  .qrow .qtext{font-size:14.5px;line-height:1.4;flex:1;}
+  .qrow .qnum{color:var(--ink-soft);font-size:13px;margin-right:6px;}
+
+  .pillgroup{display:flex;gap:6px;flex-shrink:0;}
+  .pill{
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    font-weight:600;
+    padding:6px 11px;
+    border-radius:20px;
+    cursor:pointer;
+    font-family:'Public Sans',sans-serif;
+  }
+  .pill[data-val="U"].active{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .pill[data-val="R"].active{background:var(--gold);border-color:var(--gold);color:#fff;}
+  .pill[data-val="M"].active{background:var(--rust);border-color:var(--rust);color:#fff;}
+
+  .grid-chips{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(52px,1fr));
+    gap:8px;
+  }
+  .chip{
+    aspect-ratio:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+    font-family:'Lora',serif;
+    font-weight:600;
+    font-size:16px;
+    color:var(--ink);
+    cursor:pointer;
+    user-select:none;
+    position:relative;
+  }
+  .chip[data-state="1"]{background:var(--teal-tint);border-color:var(--teal);color:var(--teal-dark);}
+  .chip[data-state="2"]{background:var(--rust-tint);border-color:var(--rust);color:var(--rust);}
+
+  .swatch-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
+    gap:12px;
+  }
+  .swatch{
+    border:1px solid var(--line);
+    border-radius:8px;
+    overflow:hidden;
+    cursor:pointer;
+    background:#fff;
+  }
+  .swatch .block{height:52px;}
+  .swatch .lbl{
+    font-size:12px;
+    padding:6px 8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .swatch[data-state="1"]{outline:2px solid var(--teal);}
+  .swatch[data-state="2"]{outline:2px solid var(--rust);}
+  .swatch .mark{font-size:12px;font-weight:700;}
+  .swatch[data-state="1"] .mark{color:var(--teal-dark);}
+  .swatch[data-state="2"] .mark{color:var(--rust);}
+
+  .shape-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+    gap:12px;
+  }
+  .shape-card{
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+    padding:14px 10px 10px;
+    text-align:center;
+    cursor:pointer;
+  }
+  .shape-card svg{width:34px;height:34px;fill:var(--ink);}
+  .shape-card .lbl{font-size:12px;margin-top:8px;color:var(--ink-soft);}
+  .shape-card[data-state="1"]{background:var(--teal-tint);border-color:var(--teal);}
+  .shape-card[data-state="1"] svg{fill:var(--teal-dark);}
+  .shape-card[data-state="2"]{background:var(--rust-tint);border-color:var(--rust);}
+  .shape-card[data-state="2"] svg{fill:var(--rust);}
+
+  .passage{
+    font-family:'Lora',serif;
+    font-size:15.5px;
+    line-height:1.7;
+    color:var(--ink);
+    max-width:64ch;
+  }
+  .passage p{margin:0 0 14px;}
+
+  .check-list .qrow{align-items:center;}
+  .check-pill-group{display:flex;gap:6px;}
+  .check-pill{
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 10px;
+    border-radius:20px;
+    cursor:pointer;
+    color:var(--ink-soft);
+  }
+  .check-pill[data-val="yes"].active{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .check-pill[data-val="developing"].active{background:var(--gold);border-color:var(--gold);color:#fff;}
+  .check-pill[data-val="no"].active{background:var(--rust);border-color:var(--rust);color:#fff;}
+
+  .upload-zone{
+    border:1.5px dashed var(--line);
+    border-radius:10px;
+    padding:26px;
+    text-align:center;
+    background:#fff;
+    cursor:pointer;
+  }
+  .upload-zone:hover{border-color:var(--teal);}
+  .upload-zone p{margin:6px 0 0;color:var(--ink-soft);font-size:13px;}
+  .preview-wrap{margin-top:14px;}
+  .preview-wrap img{max-width:100%;max-height:340px;border-radius:8px;border:1px solid var(--line);}
+  .preview-wrap .remove-btn{
+    display:inline-block;margin-top:8px;font-size:12.5px;color:var(--rust);
+    background:none;border:none;cursor:pointer;font-family:'Public Sans',sans-serif;font-weight:600;
+  }
+
+  footer.bar{
+    position:sticky;
+    bottom:0;
+    background:var(--paper);
+    border-top:1px solid var(--line);
+    padding:14px 34px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .btn{
+    font-family:'Public Sans',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:10px 20px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .btn.primary:hover{background:var(--teal-dark);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn.ghost{background:none;border:none;color:var(--ink-soft);}
+
+  .progress-note{font-size:12.5px;color:var(--ink-soft);}
+
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:600px){.summary-grid{grid-template-columns:1fr;}}
+  .summary-card{border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:#fff;}
+  .summary-card .label{font-size:12px;color:var(--ink-soft);margin-bottom:2px;}
+  .summary-card .value{font-family:'Lora',serif;font-weight:600;font-size:16px;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--teal-dark);color:#fff;padding:12px 20px;border-radius:8px;
+    font-size:13.5px;box-shadow:0 6px 18px rgba(0,0,0,.18);
+    opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;
+    z-index:50;
+    max-width:min(520px, 88vw);
+    line-height:1.4;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+  .toast.error{background:var(--rust);}
+
+  .settings-link{
+    background:none;border:none;color:var(--ink-soft);font-size:12.5px;cursor:pointer;
+    text-decoration:underline;font-family:'Public Sans',sans-serif;
+  }
+
+  /* ---------- Print / PDF report ---------- */
+  #printArea{display:none;}
+  .print-page{padding:6px 2px 26px;page-break-after:always;}
+  .print-page:last-of-type{page-break-after:auto;}
+  .print-header-row{
+    display:flex;justify-content:space-between;align-items:baseline;
+    border-bottom:2px solid #232922;padding-bottom:6px;margin-bottom:16px;
+  }
+  .print-header-row .brand{font-family:'Lora',serif;font-weight:700;font-size:16px;}
+  .print-header-row .meta{font-size:12px;color:#555;}
+  .print-section-title{font-family:'Lora',serif;font-weight:600;font-size:16px;margin:0 0 4px;}
+  .print-section-sub{font-size:11.5px;color:#555;margin:0 0 12px;}
+  table.print-table{width:100%;border-collapse:collapse;margin-bottom:10px;}
+  table.print-table td{border:1px solid #999;padding:6px 9px;font-size:12.5px;vertical-align:top;}
+  table.print-table .qcell{width:72%;}
+  table.print-table .ratingcell{width:28%;text-align:center;white-space:nowrap;font-family:'Lora',serif;}
+  .markSel{font-weight:700;text-decoration:underline;padding:0 5px;}
+  .markUnsel{color:#bbb;padding:0 5px;}
+  .print-notes{font-size:12px;color:#333;margin-top:6px;}
+  .print-notes .lbl{font-weight:700;display:block;margin-bottom:2px;}
+
+  .pgrid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .pgbox{width:34px;height:44px;border:1px solid #999;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Lora',serif;font-weight:600;font-size:13px;}
+  .pgbox .mk{font-size:11px;margin-top:2px;}
+  .mk.correct{color:var(--teal-dark);}
+  .mk.incorrect{color:var(--rust);}
+  .mk.blank{color:#ccc;}
+
+  .pcolor-grid{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;}
+  .pcolor-item{width:88px;text-align:center;font-size:11.5px;}
+  .pcolor-block{height:32px;border:1px solid #999;border-radius:4px;margin-bottom:4px;}
+
+  .pshape-grid{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:14px;}
+  .pshape-item{width:76px;text-align:center;font-size:11.5px;}
+  .pshape-item svg{width:26px;height:26px;fill:#333;}
+
+  .print-passage{font-family:'Lora',serif;font-size:13px;line-height:1.6;max-width:64ch;}
+  .print-passage p{margin:0 0 10px;}
+
+  .print-photo img{max-width:100%;max-height:420px;border:1px solid #999;margin-top:6px;}
+  .print-photo .none{font-size:12px;color:#888;font-style:italic;}
+
+  @page{margin:1.3cm;}
+  @media print{
+    #app, .toast{display:none !important;}
+    #printArea{display:block !important;}
+  }
+
+  @media(max-width:760px){
+    .layout{flex-direction:column;}
+    nav.rail{
+      width:100%;
+      display:flex;
+      overflow-x:auto;
+      border-right:none;
+      border-bottom:1px solid var(--line);
+      padding:10px 12px;
+      gap:4px;
+    }
+    nav.rail button{width:auto;white-space:nowrap;}
+    main.content{padding:20px 18px 100px;}
+    footer.bar{padding:14px 18px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="top">
+    <h1>EAL Intake</h1>
+    <div>
+      <span class="student-tag" id="studentTag">No student name yet</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="rail" id="rail"></nav>
+    <main class="content" id="content"></main>
+  </div>
+
+  <footer class="bar">
+    <button class="btn ghost" id="backBtn">← Back</button>
+    <span class="progress-note" id="progressNote"></span>
+    <button class="btn primary" id="nextBtn">Next →</button>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="printArea"></div>
+
+<script>
+/* ---------- Data ---------- */
+
+const INTERVIEW_QUESTIONS = [
+  "What is your name? Can you spell it for me?",
+  "How old are you? When is your birthday?",
+  "Tell me about your family.",
+  "Where were you born?",
+  "When did you come to Canada?",
+  "Do you like Canada? Why or why not?",
+  "What language do you speak at home?",
+  "Do you read and write in your first language?",
+  "How do you like St. Mary's? Have you made any friends?",
+  "What are your favorite subjects at school?",
+  "What do you like to do when you are at home?",
+  "Do you read at home? In what language?",
+  "What do you want to be when you are done school?"
+];
+
+const SPEAKING_SENTENCES = [
+  "The cat is on the mat.",
+  "I like to play soccer.",
+  "She is reading a book.",
+  "We are going to the park.",
+  "Can you help me, please?",
+  "It is a beautiful day.",
+  "The dog is sleeping on the couch.",
+  "I am wearing a blue shirt.",
+  "He is eating an apple.",
+  "They are singing a song.",
+  "My house is near the school.",
+  "She has a new backpack.",
+  "The teacher explained the lesson clearly, and everyone understood.",
+  "After the rain, the children went outside to play in the puddles.",
+  "We are planning a trip to the museum next weekend to see the new exhibition.",
+  "The restaurant serves delicious food, and the staff is always friendly."
+];
+
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+const COLORS = [
+  {name:"Black",hex:"#232922"},
+  {name:"Red",hex:"#C0392B"},
+  {name:"Yellow",hex:"#E8C547"},
+  {name:"Green",hex:"#4E9D5C"},
+  {name:"Blue",hex:"#3468B0"},
+  {name:"Purple",hex:"#7E57A0"},
+  {name:"Orange",hex:"#E08A2C"},
+  {name:"Brown",hex:"#7B5233"},
+  {name:"Pink",hex:"#D6598B"}
+];
+
+const SHAPES = [
+  {name:"Oval", svg:'<ellipse cx="17" cy="17" rx="15" ry="10"/>'},
+  {name:"Triangle", svg:'<polygon points="17,3 31,30 3,30"/>'},
+  {name:"Circle", svg:'<circle cx="17" cy="17" r="14"/>'},
+  {name:"Rectangle", svg:'<rect x="2" y="9" width="30" height="16"/>'},
+  {name:"Square", svg:'<rect x="4" y="4" width="26" height="26"/>'},
+  {name:"Diamond", svg:'<polygon points="17,2 32,17 17,32 2,17"/>'},
+  {name:"Star", svg:'<polygon points="17,1 21,13 34,13 23,21 27,33 17,25 7,33 11,21 0,13 13,13"/>'},
+  {name:"Arrow", svg:'<polygon points="2,12 20,12 20,4 34,17 20,30 20,22 2,22"/>'},
+  {name:"Heart", svg:'<path d="M17 30 C2 20 2 8 11 6 C15 5 17 9 17 9 C17 9 19 5 23 6 C32 8 32 20 17 30 Z"/>'},
+  {name:"Cross", svg:'<polygon points="12,2 22,2 22,12 32,12 32,22 22,22 22,32 12,32 12,22 2,22 2,12 12,12"/>'}
+];
+
+const WRITING_CHECKLIST = [
+  "Were they able to spell their own name?",
+  "Spelling",
+  "Write sentences",
+  "Uses punctuation correctly",
+  "Uses capitals correctly",
+  "Verb tenses",
+  "Subject/verb agreement"
+];
+
+const AQUIFER_PASSAGE = [
+  "When snow melts, where does all the water go? How about when it rains? Much of the water runs off into streams and rivers. Some of it drains down through the dirt. Then it settles in a layer of gravel or sand. This area where the water settles is called an aquifer. People drill down to the aquifer. Then they pump the water up. They need the water for drinking and cooking. They water their lawns. They wash their clothes and cars. They take baths and do dishes. About ⅓ of the fresh water used in America comes from aquifers. Many places that are far from lakes or rivers use only ground water.",
+  "The amount of ground water is called the water table. When more water is taken out than replaced by rain or melting snow, the water table drops. This has happened in Arizona. In many other places, people are using up ground water much too fast."
+];
+
+/* ---------- State ---------- */
+
+const state = {
+  student: { name:"", date:new Date().toISOString().slice(0,10), grade:"", homeLanguage:"" },
+  interview: {},        // idx -> {val, notes}
+  letters: { recite:{}, sounds:{} }, // letter -> 0/1/2
+  colors: {},            // name -> 0/1/2
+  shapes: {},             // name -> 0/1/2
+  speaking: {},           // idx -> val
+  sequencing: { days:"", months:"", countTo:"", notes:"" },
+  reading: { fluency:"", notes:"" },
+  writing: { photo:null, checklist:{}, notes:"" }
+};
+
+const SECTIONS = [
+  {id:"student", label:"Student Info"},
+  {id:"interview", label:"Interview"},
+  {id:"letters", label:"Letters"},
+  {id:"colors", label:"Colors"},
+  {id:"shapes", label:"Shapes"},
+  {id:"speaking", label:"Speaking"},
+  {id:"sequencing", label:"Sequencing"},
+  {id:"reading", label:"Reading"},
+  {id:"writing", label:"Writing"},
+  {id:"review", label:"Review & Send"}
+];
+
+let current = 0;
+
+/* ---------- Render: rail + footer ---------- */
+
+function renderRail(){
+  const rail = document.getElementById('rail');
+  rail.innerHTML = "";
+  SECTIONS.forEach((s,i)=>{
+    const b = document.createElement('button');
+    b.className = 'section-btn' + (i===current?' active':'') + (isSectionTouched(s.id)?' done':'');
+    b.innerHTML = `<span class="num">${i+1}</span><span>${s.label}</span>`;
+    b.onclick = ()=>goTo(i);
+    rail.appendChild(b);
+  });
+  document.getElementById('studentTag').innerHTML = state.student.name
+    ? `<strong>${escapeHtml(state.student.name)}</strong>`
+    : "No student name yet";
+}
+
+function isSectionTouched(id){
+  switch(id){
+    case 'student': return !!state.student.name;
+    case 'interview': return Object.keys(state.interview).length>0;
+    case 'letters': return Object.keys(state.letters.recite).length>0 || Object.keys(state.letters.sounds).length>0;
+    case 'colors': return Object.keys(state.colors).length>0;
+    case 'shapes': return Object.keys(state.shapes).length>0;
+    case 'speaking': return Object.keys(state.speaking).length>0;
+    case 'sequencing': return !!(state.sequencing.days||state.sequencing.months||state.sequencing.countTo);
+    case 'reading': return !!(state.reading.fluency||state.reading.notes);
+    case 'writing': return !!(state.writing.photo || Object.keys(state.writing.checklist).length>0);
+    default: return false;
+  }
+}
+
+function renderFooter(){
+  document.getElementById('backBtn').disabled = current===0;
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.textContent = current===SECTIONS.length-1 ? "Finish" : "Next →";
+  document.getElementById('progressNote').textContent = `Section ${current+1} of ${SECTIONS.length}`;
+}
+
+/* ---------- Section renderers ---------- */
+
+function renderContent(){
+  const c = document.getElementById('content');
+  const id = SECTIONS[current].id;
+  c.innerHTML = "";
+  const renderers = {
+    student: renderStudent, interview: renderInterview, letters: renderLetters,
+    colors: renderColors, shapes: renderShapes, speaking: renderSpeaking,
+    sequencing: renderSequencing, reading: renderReading, writing: renderWriting,
+    review: renderReview
+  };
+  renderers[id](c);
+}
+
+function sectionHead(c, title, sub){
+  const div = document.createElement('div');
+  div.className = 'section-head';
+  div.innerHTML = `<h2>${title}</h2>${sub?`<p>${sub}</p>`:""}`;
+  c.appendChild(div);
+}
+
+function renderStudent(c){
+  sectionHead(c, "Student information", "Basic details for this intake session.");
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `
+    <div class="two-col">
+      <div>
+        <label class="field-label">Student name</label>
+        <input type="text" id="f-name" value="${escapeHtml(state.student.name)}" placeholder="First and last name">
+      </div>
+      <div>
+        <label class="field-label">Date</label>
+        <input type="date" id="f-date" value="${state.student.date}">
+      </div>
+      <div>
+        <label class="field-label">Grade</label>
+        <input type="text" id="f-grade" value="${escapeHtml(state.student.grade)}" placeholder="e.g. Grade 2">
+      </div>
+      <div>
+        <label class="field-label">Home language(s)</label>
+        <input type="text" id="f-lang" value="${escapeHtml(state.student.homeLanguage)}" placeholder="e.g. Tagalog">
+      </div>
+    </div>`;
+  c.appendChild(card);
+  card.querySelector('#f-name').oninput = e=>{state.student.name=e.target.value; renderRail();};
+  card.querySelector('#f-date').oninput = e=>state.student.date=e.target.value;
+  card.querySelector('#f-grade').oninput = e=>state.student.grade=e.target.value;
+  card.querySelector('#f-lang').oninput = e=>state.student.homeLanguage=e.target.value;
+}
+
+function ratingRow(index, text, storeGetter, onSet){
+  const row = document.createElement('div');
+  row.className = 'qrow';
+  const current = storeGetter();
+  row.innerHTML = `
+    <div class="qtext"><span class="qnum">${index+1}.</span>${escapeHtml(text)}</div>
+    <div class="pillgroup">
+      <button class="pill" data-val="U">U</button>
+      <button class="pill" data-val="R">R</button>
+      <button class="pill" data-val="M">M</button>
+    </div>`;
+  row.querySelectorAll('.pill').forEach(p=>{
+    if(p.dataset.val===current) p.classList.add('active');
+    p.onclick = ()=>{ onSet(p.dataset.val===current?"":p.dataset.val); renderContent(); renderRail(); };
+  });
+  return row;
+}
+
+function renderInterview(c){
+  sectionHead(c, "Interview questions", "U = Understood · R = Rephrased · M = Multiple attempts / gestures");
+  const card = document.createElement('div'); card.className='card';
+  INTERVIEW_QUESTIONS.forEach((q,i)=>{
+    card.appendChild(ratingRow(i, q,
+      ()=> (state.interview[i]||{}).val || "",
+      (v)=>{ state.interview[i] = {...(state.interview[i]||{}), val:v}; }
+    ));
+  });
+  c.appendChild(card);
+
+  const notesCard = document.createElement('div'); notesCard.className='card';
+  notesCard.innerHTML = `<label class="field-label">General notes</label>
+    <textarea id="int-notes" placeholder="Anything worth remembering from the interview...">${escapeHtml(state.interview.notes||"")}</textarea>`;
+  notesCard.querySelector('#int-notes').oninput = e=>state.interview.notes = e.target.value;
+  c.appendChild(notesCard);
+}
+
+function letterChip(letter, group){
+  const chip = document.createElement('div');
+  chip.className='chip';
+  const s = state.letters[group][letter] || 0;
+  chip.dataset.state = s;
+  chip.textContent = letter;
+  chip.onclick = ()=>{
+    const next = (s+1)%3;
+    if(next===0) delete state.letters[group][letter]; else state.letters[group][letter]=next;
+    renderContent(); renderRail();
+  };
+  return chip;
+}
+
+function renderLetters(c){
+  sectionHead(c, "Letter knowledge", "Tap a letter to mark it: first tap = correct, second tap = incorrect, third tap = clear.");
+  const c1 = document.createElement('div'); c1.className='card';
+  c1.innerHTML = `<label class="field-label">Can recite the alphabet</label>`;
+  const grid1 = document.createElement('div'); grid1.className='grid-chips';
+  ALPHABET.forEach(l=>grid1.appendChild(letterChip(l,'recite')));
+  c1.appendChild(grid1);
+  c.appendChild(c1);
+
+  const c2 = document.createElement('div'); c2.className='card';
+  c2.innerHTML = `<label class="field-label">Identifies letter sounds</label>`;
+  const grid2 = document.createElement('div'); grid2.className='grid-chips';
+  ALPHABET.forEach(l=>grid2.appendChild(letterChip(l,'sounds')));
+  c2.appendChild(grid2);
+  c.appendChild(c2);
+}
+
+function renderColors(c){
+  sectionHead(c, "Color recognition", "Tap a swatch: first tap = correct, second tap = incorrect, third tap = clear.");
+  const card = document.createElement('div'); card.className='card';
+  const grid = document.createElement('div'); grid.className='swatch-grid';
+  COLORS.forEach(col=>{
+    const s = state.colors[col.name]||0;
+    const el = document.createElement('div');
+    el.className='swatch'; el.dataset.state=s;
+    el.innerHTML = `<div class="block" style="background:${col.hex}"></div>
+      <div class="lbl"><span>${col.name}</span><span class="mark">${s===1?'✓':s===2?'✕':''}</span></div>`;
+    el.onclick = ()=>{
+      const next=(s+1)%3;
+      if(next===0) delete state.colors[col.name]; else state.colors[col.name]=next;
+      renderContent(); renderRail();
+    };
+    grid.appendChild(el);
+  });
+  card.appendChild(grid);
+  c.appendChild(card);
+}
+
+function renderShapes(c){
+  sectionHead(c, "Shape recognition", "Tap a shape: first tap = correct, second tap = incorrect, third tap = clear.");
+  const card = document.createElement('div'); card.className='card';
+  const grid = document.createElement('div'); grid.className='shape-grid';
+  SHAPES.forEach(sh=>{
+    const s = state.shapes[sh.name]||0;
+    const el = document.createElement('div');
+    el.className='shape-card'; el.dataset.state=s;
+    el.innerHTML = `<svg viewBox="0 0 34 34">${sh.svg}</svg><div class="lbl">${sh.name}</div>`;
+    el.onclick = ()=>{
+      const next=(s+1)%3;
+      if(next===0) delete state.shapes[sh.name]; else state.shapes[sh.name]=next;
+      renderContent(); renderRail();
+    };
+    grid.appendChild(el);
+  });
+  card.appendChild(grid);
+  c.appendChild(card);
+}
+
+function renderSpeaking(c){
+  sectionHead(c, "Speaking — repeat after me", "U = Understood · R = Rephrased · M = Multiple attempts / gestures");
+  const card = document.createElement('div'); card.className='card';
+  SPEAKING_SENTENCES.forEach((s,i)=>{
+    card.appendChild(ratingRow(i, s,
+      ()=> state.speaking[i] || "",
+      (v)=>{ state.speaking[i]=v; }
+    ));
+  });
+  c.appendChild(card);
+}
+
+function renderSequencing(c){
+  sectionHead(c, "Sequencing knowledge", "Days of the week, months of the year, and counting.");
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `
+    <div style="margin-bottom:14px;">
+      <label class="field-label">Days of the week in order</label>
+      <input type="text" id="seq-days" value="${escapeHtml(state.sequencing.days)}" placeholder="e.g. correct, or note where they stopped">
+    </div>
+    <div style="margin-bottom:14px;">
+      <label class="field-label">Months of the year in order</label>
+      <input type="text" id="seq-months" value="${escapeHtml(state.sequencing.months)}" placeholder="e.g. correct, or note where they stopped">
+    </div>
+    <div style="margin-bottom:14px;">
+      <label class="field-label">Counted to 100 — highest number reached</label>
+      <input type="text" id="seq-count" value="${escapeHtml(state.sequencing.countTo)}" placeholder="e.g. 100, or 47">
+    </div>
+    <div>
+      <label class="field-label">Notes</label>
+      <textarea id="seq-notes" placeholder="Any observations...">${escapeHtml(state.sequencing.notes)}</textarea>
+    </div>`;
+  c.appendChild(card);
+  card.querySelector('#seq-days').oninput = e=>state.sequencing.days=e.target.value;
+  card.querySelector('#seq-months').oninput = e=>state.sequencing.months=e.target.value;
+  card.querySelector('#seq-count').oninput = e=>state.sequencing.countTo=e.target.value;
+  card.querySelector('#seq-notes').oninput = e=>state.sequencing.notes=e.target.value;
+}
+
+function renderReading(c){
+  sectionHead(c, "Reading fluency", "Have the student read the passage aloud.");
+  const passageCard = document.createElement('div'); passageCard.className='card passage';
+  AQUIFER_PASSAGE.forEach(p=>{
+    const el = document.createElement('p'); el.textContent = p; passageCard.appendChild(el);
+  });
+  c.appendChild(passageCard);
+
+  const notesCard = document.createElement('div'); notesCard.className='card';
+  notesCard.innerHTML = `
+    <label class="field-label">Fluency observations</label>
+    <textarea id="read-fluency" placeholder="Sounding out unfamiliar words, pace, expression...">${escapeHtml(state.reading.fluency)}</textarea>
+    <div style="height:12px;"></div>
+    <label class="field-label">Additional notes</label>
+    <textarea id="read-notes" placeholder="Anything else worth noting...">${escapeHtml(state.reading.notes)}</textarea>`;
+  c.appendChild(notesCard);
+  notesCard.querySelector('#read-fluency').oninput = e=>state.reading.fluency=e.target.value;
+  notesCard.querySelector('#read-notes').oninput = e=>state.reading.notes=e.target.value;
+}
+
+function renderWriting(c){
+  sectionHead(c, "Writing", "Prompt: \u201cWrite a paragraph about something that you like to do, or about your summer.\u201d");
+
+  const upCard = document.createElement('div'); upCard.className='card';
+  upCard.innerHTML = `<label class="field-label">Writing sample photo</label>`;
+  if(state.writing.photo){
+    const pw = document.createElement('div'); pw.className='preview-wrap';
+    pw.innerHTML = `<img src="${state.writing.photo}"><br><button class="remove-btn" id="removePhoto">Remove photo</button>`;
+    upCard.appendChild(pw);
+    upCard.querySelector('#removePhoto').onclick = ()=>{state.writing.photo=null; renderContent(); renderRail();};
+  } else {
+    const zone = document.createElement('div'); zone.className='upload-zone';
+    zone.innerHTML = `<div style="font-size:20px;">📷</div><p>Tap to take a photo or upload an image of their writing</p>`;
+    const input = document.createElement('input');
+    input.type='file'; input.accept='image/*'; input.capture='environment'; input.style.display='none';
+    zone.appendChild(input);
+    zone.onclick = ()=>input.click();
+    input.onchange = e=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{ state.writing.photo = reader.result; renderContent(); renderRail(); };
+      reader.readAsDataURL(file);
+    };
+    upCard.appendChild(zone);
+  }
+  c.appendChild(upCard);
+
+  const checkCard = document.createElement('div'); checkCard.className='card check-list';
+  checkCard.innerHTML = `<label class="field-label">Assessment checklist</label>`;
+  WRITING_CHECKLIST.forEach((item,i)=>{
+    const row = document.createElement('div'); row.className='qrow';
+    const val = state.writing.checklist[i]||"";
+    row.innerHTML = `<div class="qtext">${escapeHtml(item)}</div>
+      <div class="check-pill-group">
+        <button class="check-pill" data-val="yes">Yes</button>
+        <button class="check-pill" data-val="developing">Developing</button>
+        <button class="check-pill" data-val="no">No</button>
+      </div>`;
+    row.querySelectorAll('.check-pill').forEach(p=>{
+      if(p.dataset.val===val) p.classList.add('active');
+      p.onclick = ()=>{
+        state.writing.checklist[i] = p.dataset.val===val ? "" : p.dataset.val;
+        renderContent(); renderRail();
+      };
+    });
+    checkCard.appendChild(row);
+  });
+  c.appendChild(checkCard);
+
+  const notesCard = document.createElement('div'); notesCard.className='card';
+  notesCard.innerHTML = `<label class="field-label">Writing notes</label>
+    <textarea id="write-notes" placeholder="Additional observations about the writing sample...">${escapeHtml(state.writing.notes)}</textarea>`;
+  notesCard.querySelector('#write-notes').oninput = e=>state.writing.notes=e.target.value;
+  c.appendChild(notesCard);
+}
+
+function renderReview(c){
+  sectionHead(c, "Review & send", "Double-check the details below, then send the results to your Google Sheet.");
+
+  const grid = document.createElement('div'); grid.className='summary-grid';
+  const items = [
+    ["Student", state.student.name || "—"],
+    ["Grade", state.student.grade || "—"],
+    ["Date", state.student.date || "—"],
+    ["Home language", state.student.homeLanguage || "—"],
+    ["Interview answered", `${Object.keys(state.interview).filter(k=>k!=='notes').length} / ${INTERVIEW_QUESTIONS.length}`],
+    ["Speaking answered", `${Object.keys(state.speaking).length} / ${SPEAKING_SENTENCES.length}`],
+    ["Letters marked", `${Object.keys(state.letters.recite).length + Object.keys(state.letters.sounds).length} / 52`],
+    ["Writing photo", state.writing.photo ? "Attached" : "Not attached"]
+  ];
+  items.forEach(([label,value])=>{
+    const card = document.createElement('div'); card.className='summary-card';
+    card.innerHTML = `<div class="label">${label}</div><div class="value">${escapeHtml(String(value))}</div>`;
+    grid.appendChild(card);
+  });
+  c.appendChild(grid);
+
+  const sendCard = document.createElement('div'); sendCard.className='card'; sendCard.style.marginTop='16px';
+  sendCard.innerHTML = `
+    <label class="field-label">Print or save as PDF</label>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px;">
+      Generates a printable report — one page per section, laid out like the paper intake form, with every correct/incorrect mark and rating shown. Use your browser's print dialog and choose "Save as PDF" as the destination.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn primary" id="printBtn">Print / Save as PDF</button>
+      <button class="btn" id="downloadBtn">Download JSON backup</button>
+      <button class="btn ghost" id="newStudentBtn">Start new student</button>
+    </div>`;
+  c.appendChild(sendCard);
+
+  sendCard.querySelector('#printBtn').onclick = printReport;
+  sendCard.querySelector('#downloadBtn').onclick = downloadBackup;
+  sendCard.querySelector('#newStudentBtn').onclick = ()=>{
+    if(confirm("Clear all answers and start a new intake?")) resetState();
+  };
+}
+
+/* ---------- Submit ---------- */
+
+function buildPayload(){
+  return {
+    timestamp: new Date().toISOString(),
+    student: state.student,
+    interview: SUM_labelled(INTERVIEW_QUESTIONS, state.interview),
+    interviewNotes: state.interview.notes || "",
+    lettersRecite: state.letters.recite,
+    lettersSounds: state.letters.sounds,
+    colors: state.colors,
+    shapes: state.shapes,
+    speaking: SUM_labelled(SPEAKING_SENTENCES, state.speaking, true),
+    sequencing: state.sequencing,
+    reading: state.reading,
+    writingChecklist: WRITING_CHECKLIST.map((item,i)=>({item, value: state.writing.checklist[i]||""})),
+    writingNotes: state.writing.notes,
+    writingPhotoBase64: state.writing.photo || ""
+  };
+}
+function SUM_labelled(list, store, flat){
+  return list.map((q,i)=>({
+    question:q,
+    value: flat ? (store[i]||"") : ((store[i]||{}).val||"")
+  }));
+}
+
+/* ---------- Print / PDF report ---------- */
+
+function printHeader(sectionTitle, sub){
+  const name = state.student.name || "Unnamed student";
+  const date = state.student.date || "";
+  return `
+    <div class="print-header-row">
+      <span class="brand">EAL Intake — ${escapeHtml(name)}</span>
+      <span class="meta">${escapeHtml(state.student.grade||"")}${state.student.grade?" · ":""}${escapeHtml(date)}</span>
+    </div>
+    <h2 class="print-section-title">${sectionTitle}</h2>
+    ${sub?`<p class="print-section-sub">${sub}</p>`:""}
+  `;
+}
+
+function ratingCell(selected){
+  const marks = ['U','R','M'];
+  return marks.map(v=>{
+    const cls = v===selected ? 'markSel' : 'markUnsel';
+    return `<span class="${cls}">${v}</span>`;
+  }).join(' ');
+}
+
+function printQuestionTable(list, store, flat){
+  let rows = "";
+  list.forEach((text,i)=>{
+    const val = flat ? (store[i]||"") : ((store[i]||{}).val||"");
+    rows += `<tr><td class="qcell">${i+1}. ${escapeHtml(text)}</td><td class="ratingcell">${ratingCell(val)}</td></tr>`;
+  });
+  return `<table class="print-table"><tbody>${rows}</tbody></table>`;
+}
+
+function printLetterGrid(map){
+  let html = '<div class="pgrid">';
+  ALPHABET.forEach(l=>{
+    const s = map[l]||0;
+    const cls = s===1?'correct':s===2?'incorrect':'blank';
+    const sym = s===1?'✓':s===2?'✗':'–';
+    html += `<div class="pgbox">${l}<span class="mk ${cls}">${sym}</span></div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function buildPrintStudentPage(){
+  const s = state.student;
+  return `<section class="print-page">
+    ${printHeader("Student information")}
+    <table class="print-table"><tbody>
+      <tr><td class="qcell" style="width:30%;font-weight:600;">Student name</td><td>${escapeHtml(s.name||"—")}</td></tr>
+      <tr><td class="qcell" style="width:30%;font-weight:600;">Date</td><td>${escapeHtml(s.date||"—")}</td></tr>
+      <tr><td class="qcell" style="width:30%;font-weight:600;">Grade</td><td>${escapeHtml(s.grade||"—")}</td></tr>
+      <tr><td class="qcell" style="width:30%;font-weight:600;">Home language(s)</td><td>${escapeHtml(s.homeLanguage||"—")}</td></tr>
+    </tbody></table>
+  </section>`;
+}
+
+function buildPrintInterviewPage(){
+  return `<section class="print-page">
+    ${printHeader("Interview questions", "U = Understood &nbsp; R = Rephrased &nbsp; M = Multiple attempts / gestures")}
+    ${printQuestionTable(INTERVIEW_QUESTIONS, state.interview, false)}
+    ${state.interview.notes ? `<div class="print-notes"><span class="lbl">Notes</span>${escapeHtml(state.interview.notes)}</div>` : ""}
+  </section>`;
+}
+
+function buildPrintLettersPage(){
+  return `<section class="print-page">
+    ${printHeader("Letter knowledge", "✓ correct &nbsp; ✗ incorrect &nbsp; – not marked")}
+    <p style="font-weight:600;font-size:13px;margin:0 0 6px;">Can recite the alphabet</p>
+    ${printLetterGrid(state.letters.recite)}
+    <p style="font-weight:600;font-size:13px;margin:0 0 6px;">Identifies letter sounds</p>
+    ${printLetterGrid(state.letters.sounds)}
+  </section>`;
+}
+
+function buildPrintColorsShapesPage(){
+  let colorHtml = '<div class="pcolor-grid">';
+  COLORS.forEach(col=>{
+    const s = state.colors[col.name]||0;
+    const cls = s===1?'correct':s===2?'incorrect':'blank';
+    const sym = s===1?'✓':s===2?'✗':'–';
+    colorHtml += `<div class="pcolor-item"><div class="pcolor-block" style="background:${col.hex}"></div>${col.name} <span class="mk ${cls}">${sym}</span></div>`;
+  });
+  colorHtml += '</div>';
+
+  let shapeHtml = '<div class="pshape-grid">';
+  SHAPES.forEach(sh=>{
+    const s = state.shapes[sh.name]||0;
+    const cls = s===1?'correct':s===2?'incorrect':'blank';
+    const sym = s===1?'✓':s===2?'✗':'–';
+    shapeHtml += `<div class="pshape-item"><svg viewBox="0 0 34 34">${sh.svg}</svg><div>${sh.name}</div><span class="mk ${cls}">${sym}</span></div>`;
+  });
+  shapeHtml += '</div>';
+
+  return `<section class="print-page">
+    ${printHeader("Color & shape recognition", "✓ correct &nbsp; ✗ incorrect &nbsp; – not marked")}
+    <p style="font-weight:600;font-size:13px;margin:0 0 6px;">Colors</p>
+    ${colorHtml}
+    <p style="font-weight:600;font-size:13px;margin:0 0 6px;">Shapes</p>
+    ${shapeHtml}
+  </section>`;
+}
+
+function buildPrintSpeakingPage(){
+  return `<section class="print-page">
+    ${printHeader("Speaking — repeat after me", "U = Understood &nbsp; R = Rephrased &nbsp; M = Multiple attempts / gestures")}
+    ${printQuestionTable(SPEAKING_SENTENCES, state.speaking, true)}
+  </section>`;
+}
+
+function buildPrintSequencingPage(){
+  const sq = state.sequencing;
+  return `<section class="print-page">
+    ${printHeader("Sequencing knowledge")}
+    <table class="print-table"><tbody>
+      <tr><td class="qcell" style="width:38%;font-weight:600;">Days of the week in order</td><td>${escapeHtml(sq.days||"—")}</td></tr>
+      <tr><td class="qcell" style="width:38%;font-weight:600;">Months of the year in order</td><td>${escapeHtml(sq.months||"—")}</td></tr>
+      <tr><td class="qcell" style="width:38%;font-weight:600;">Counted to 100 — highest reached</td><td>${escapeHtml(sq.countTo||"—")}</td></tr>
+    </tbody></table>
+    ${sq.notes ? `<div class="print-notes"><span class="lbl">Notes</span>${escapeHtml(sq.notes)}</div>` : ""}
+  </section>`;
+}
+
+function buildPrintReadingPage(){
+  const r = state.reading;
+  let passageHtml = '<div class="print-passage">';
+  AQUIFER_PASSAGE.forEach(p=>{ passageHtml += `<p>${escapeHtml(p)}</p>`; });
+  passageHtml += '</div>';
+  return `<section class="print-page">
+    ${printHeader("Reading fluency")}
+    ${passageHtml}
+    ${r.fluency ? `<div class="print-notes"><span class="lbl">Fluency observations</span>${escapeHtml(r.fluency)}</div>` : ""}
+    ${r.notes ? `<div class="print-notes"><span class="lbl">Additional notes</span>${escapeHtml(r.notes)}</div>` : ""}
+  </section>`;
+}
+
+function buildPrintWritingPage(){
+  const w = state.writing;
+  let checklistRows = "";
+  WRITING_CHECKLIST.forEach((item,i)=>{
+    const val = w.checklist[i]||"";
+    const opts = ['yes','developing','no'];
+    const labels = {yes:'Yes', developing:'Developing', no:'No'};
+    const cells = opts.map(o=>{
+      const cls = o===val ? 'markSel':'markUnsel';
+      return `<span class="${cls}">${labels[o]}</span>`;
+    }).join(' &nbsp; ');
+    checklistRows += `<tr><td class="qcell">${escapeHtml(item)}</td><td class="ratingcell">${cells}</td></tr>`;
+  });
+
+  const photoHtml = w.photo
+    ? `<div class="print-photo"><img src="${w.photo}"></div>`
+    : `<div class="print-photo"><span class="none">No writing sample photo attached.</span></div>`;
+
+  return `<section class="print-page">
+    ${printHeader("Writing", `Prompt: "Write a paragraph about something that you like to do, or about your summer."`)}
+    ${photoHtml}
+    <table class="print-table" style="margin-top:16px;"><tbody>${checklistRows}</tbody></table>
+    ${w.notes ? `<div class="print-notes"><span class="lbl">Writing notes</span>${escapeHtml(w.notes)}</div>` : ""}
+  </section>`;
+}
+
+function printReport(){
+  const el = document.getElementById('printArea');
+  el.innerHTML = [
+    buildPrintStudentPage(),
+    buildPrintInterviewPage(),
+    buildPrintLettersPage(),
+    buildPrintColorsShapesPage(),
+    buildPrintSpeakingPage(),
+    buildPrintSequencingPage(),
+    buildPrintReadingPage(),
+    buildPrintWritingPage()
+  ].join("");
+  setTimeout(()=>{
+    try{
+      window.print();
+    }catch(err){
+      showToast("Couldn't open the print dialog (" + err.message + "). This usually means the page is being viewed inside a restricted preview — download the HTML file and open it directly in your browser instead.", true);
+    }
+  }, 60);
+}
+
+function downloadBackup(){
+  const data = JSON.stringify(buildPayload(), null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const namePart = (state.student.name || 'student').replace(/[^a-z0-9]+/gi,'-').toLowerCase();
+  a.href = url; a.download = `eal-intake-${namePart}-${state.student.date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function resetState(){
+  state.student = { name:"", date:new Date().toISOString().slice(0,10), grade:"", homeLanguage:"" };
+  state.interview = {}; state.letters = {recite:{},sounds:{}}; state.colors = {}; state.shapes = {};
+  state.speaking = {}; state.sequencing = {days:"",months:"",countTo:"",notes:""};
+  state.reading = {fluency:"",notes:""}; state.writing = {photo:null,checklist:{},notes:""};
+  current = 0;
+  render();
+}
+
+/* ---------- Toast ---------- */
+let toastTimer;
+function showToast(msg, isError){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError?' error':'');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), isError ? 8000 : 4200);
+}
+
+/* ---------- Nav ---------- */
+
+function goTo(i){
+  current = Math.max(0, Math.min(SECTIONS.length-1, i));
+  render();
+  document.getElementById('content').scrollTop = 0;
+}
+document.getElementById('backBtn').onclick = ()=>goTo(current-1);
+document.getElementById('nextBtn').onclick = ()=>{
+  if(current===SECTIONS.length-1){ return; }
+  goTo(current+1);
+};
+
+/* ---------- Utils ---------- */
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+
+/* ---------- Init ---------- */
+function render(){
+  renderRail();
+  renderContent();
+  renderFooter();
+}
+render();
+</script>
+</body>
+</html>
