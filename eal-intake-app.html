@@ -832,15 +832,14 @@ function renderLetters(c){
 }
 
 function renderColors(c){
-  sectionHead(c, "Color recognition", "Tap a swatch: first tap = correct, second tap = incorrect, third tap = clear.");
+  sectionHead(c, "Color recognition", "Tap a swatch: first tap = correct, second tap = incorrect, third tap = clear. No labels shown — safe to display on the board.");
   const card = document.createElement('div'); card.className='card';
   const grid = document.createElement('div'); grid.className='swatch-grid';
   COLORS.forEach(col=>{
     const s = state.colors[col.name]||0;
     const el = document.createElement('div');
     el.className='swatch'; el.dataset.state=s;
-    el.innerHTML = `<div class="block" style="background:${col.hex}"></div>
-      <div class="lbl"><span>${col.name}</span><span class="mark">${s===1?'✓':s===2?'✕':''}</span></div>`;
+    el.innerHTML = `<div class="block" style="background:${col.hex};height:64px;"></div>`;
     el.onclick = ()=>{
       const next=(s+1)%3;
       if(next===0) delete state.colors[col.name]; else state.colors[col.name]=next;
@@ -853,14 +852,14 @@ function renderColors(c){
 }
 
 function renderShapes(c){
-  sectionHead(c, "Shape recognition", "Tap a shape: first tap = correct, second tap = incorrect, third tap = clear.");
+  sectionHead(c, "Shape recognition", "Tap a shape: first tap = correct, second tap = incorrect, third tap = clear. No labels shown — safe to display on the board.");
   const card = document.createElement('div'); card.className='card';
   const grid = document.createElement('div'); grid.className='shape-grid';
   SHAPES.forEach(sh=>{
     const s = state.shapes[sh.name]||0;
     const el = document.createElement('div');
     el.className='shape-card'; el.dataset.state=s;
-    el.innerHTML = `<svg viewBox="0 0 34 34">${sh.svg}</svg><div class="lbl">${sh.name}</div>`;
+    el.innerHTML = `<svg viewBox="0 0 34 34">${sh.svg}</svg>`;
     el.onclick = ()=>{
       const next=(s+1)%3;
       if(next===0) delete state.shapes[sh.name]; else state.shapes[sh.name]=next;
