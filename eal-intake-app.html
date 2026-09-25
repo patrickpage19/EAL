@@ -1189,9 +1189,15 @@ function renderWriting(c){
     input.onchange = e=>{
       const file = e.target.files[0];
       if(!file) return;
-      const reader = new FileReader();
-      reader.onload = ()=>{ state.writing.photo = reader.result; renderContent(); renderRail(); };
-      reader.readAsDataURL(file);
+      downscaleImageFile(file, 1600, 0.85).then(dataUrl=>{
+        state.writing.photo = dataUrl;
+        renderContent(); renderRail();
+      }).catch(()=>{
+        // Fallback: use the original file as-is if downscaling fails for any reason
+        const reader = new FileReader();
+        reader.onload = ()=>{ state.writing.photo = reader.result; renderContent(); renderRail(); };
+        reader.readAsDataURL(file);
+      });
     };
     upCard.appendChild(zone);
   }
@@ -1716,13 +1722,15 @@ function printReport(){
     buildPrintGatesPage(),
     buildPrintOralPage()
   ].join("");
-  setTimeout(()=>{
+  // Wait for every embedded image (writing sample photo, oral proficiency picture) to
+  // finish decoding before printing — otherwise a still-loading image can print blank.
+  waitForImages(el, 4000).then(()=>{
     try{
       window.print();
     }catch(err){
       showToast("Couldn't open the print dialog (" + err.message + "). This usually means the page is being viewed inside a restricted preview — download the HTML file and open it directly in your browser instead.", true);
     }
-  }, 60);
+  });
 }
 
 function downloadBackup(){
@@ -1774,6 +1782,55 @@ document.getElementById('nextBtn').onclick = ()=>{
 /* ---------- Utils ---------- */
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+
+// Downscales/compresses an image file (e.g. a full-resolution phone photo) via canvas
+// before it's stored as base64 — keeps the app fast and, critically, keeps the printed
+// PDF from silently dropping a multi-megabyte image.
+function downscaleImageFile(file, maxDimension, quality){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = ()=>{
+      img.onerror = reject;
+      img.onload = ()=>{
+        let { width, height } = img;
+        if(width > maxDimension || height > maxDimension){
+          if(width >= height){
+            height = Math.round(height * (maxDimension/width));
+            width = maxDimension;
+          } else {
+            width = Math.round(width * (maxDimension/height));
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Waits for every <img> inside a container to finish loading (or fail) before resolving,
+// so window.print() never fires on a page with a still-decoding image.
+function waitForImages(container, timeoutMs){
+  const imgs = Array.from(container.querySelectorAll('img'));
+  if(imgs.length===0) return Promise.resolve();
+  const perImage = imgs.map(img=>{
+    if(img.complete) return Promise.resolve();
+    return new Promise(resolve=>{
+      img.onload = resolve;
+      img.onerror = resolve;
+    });
+  });
+  const timeout = new Promise(resolve=>setTimeout(resolve, timeoutMs));
+  return Promise.race([Promise.all(perImage), timeout]);
 }
 
 /* ---------- Init ---------- */
