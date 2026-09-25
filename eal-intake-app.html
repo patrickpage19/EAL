@@ -256,6 +256,63 @@
   }
   .passage p{margin:0 0 14px;}
 
+  /* ---------- Reading annotation ---------- */
+  .annot-passage{
+    font-family:'Lora',serif;
+    font-size:16.5px;
+    line-height:2.1;
+    color:var(--ink);
+    max-width:66ch;
+  }
+  .annot-passage p{margin:0 0 16px;}
+  .annot-word{
+    cursor:pointer;
+    padding:1px 2px;
+    border-radius:3px;
+    white-space:pre-wrap;
+  }
+  .annot-word:hover{background:#F2F4F0;}
+  .annot-word[data-mark="misread"]{
+    background:var(--rust-tint);
+    color:var(--rust);
+    text-decoration:underline;
+    text-decoration-style:wavy;
+    text-decoration-color:var(--rust);
+  }
+  .annot-word[data-mark="self-corrected"]{
+    background:var(--gold-tint);
+    color:var(--gold);
+    text-decoration:underline;
+    text-decoration-color:var(--gold);
+  }
+  .annot-word[data-mark="skipped"]{
+    background:#EEE;
+    color:#999;
+    text-decoration:line-through;
+  }
+  .annot-legend{
+    display:flex;gap:16px;flex-wrap:wrap;
+    font-size:12.5px;color:var(--ink-soft);
+    margin-bottom:16px;
+  }
+  .annot-legend .dot{
+    display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle;
+  }
+  .annot-legend .dot.misread{background:var(--rust);}
+  .annot-legend .dot.self-corrected{background:var(--gold);}
+  .annot-legend .dot.skipped{background:#999;}
+  .annot-tally{
+    display:flex;gap:22px;flex-wrap:wrap;
+    font-family:'Lora',serif;font-size:15px;font-weight:600;
+  }
+  .annot-tally .item{display:flex;align-items:baseline;gap:6px;}
+  .annot-tally .item .n{font-size:20px;}
+  .annot-tally .item.misread .n{color:var(--rust);}
+  .annot-tally .item.self-corrected .n{color:var(--gold);}
+  .annot-tally .item.skipped .n{color:#888;}
+  .annot-tally .item.accuracy .n{color:var(--teal-dark);}
+  .annot-tally .lbl{font-family:'Public Sans',sans-serif;font-size:12px;font-weight:400;color:var(--ink-soft);}
+
   .check-list .qrow{align-items:center;}
   .check-pill-group{display:flex;gap:6px;}
   .check-pill{
@@ -360,6 +417,9 @@
   .markUnsel{color:#bbb;padding:0 5px;}
   .print-notes{font-size:12px;color:#333;margin-top:6px;}
   .print-notes .lbl{font-weight:700;display:block;margin-bottom:2px;}
+  .print-lp-benchmark{border:1px solid #999;border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:12px;}
+  .print-lp-benchmark .domain{font-weight:700;margin-right:4px;}
+  .print-lp-benchmark .lvl{font-weight:700;}
 
   .pgrid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
   .pgbox{width:34px;height:44px;border:1px solid #999;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Lora',serif;font-weight:600;font-size:13px;}
@@ -378,6 +438,15 @@
 
   .print-passage{font-family:'Lora',serif;font-size:13px;line-height:1.6;max-width:64ch;}
   .print-passage p{margin:0 0 10px;}
+
+  .print-annot-passage{font-family:'Lora',serif;font-size:13.5px;line-height:1.9;max-width:66ch;}
+  .print-annot-passage p{margin:0 0 12px;}
+  .print-annot-word{padding:0 1px;}
+  .print-annot-word.misread{text-decoration:underline wavy;font-weight:700;}
+  .print-annot-word.self-corrected{text-decoration:underline;font-weight:700;color:#555;}
+  .print-annot-word.skipped{text-decoration:line-through;color:#999;}
+  .print-annot-tally{display:flex;gap:22px;flex-wrap:wrap;font-size:13px;margin-top:14px;padding-top:10px;border-top:1px solid #999;}
+  .print-annot-tally b{font-size:15px;}
 
   .print-photo img{max-width:100%;max-height:420px;border:1px solid #999;margin-top:6px;}
   .print-photo .none{font-size:12px;color:#888;font-style:italic;}
@@ -400,6 +469,21 @@
     width:44px;height:44px;border-radius:8px;cursor:pointer;
   }
   .level-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+
+  .lp-benchmark-card{margin-bottom:14px;}
+  .lp-benchmark-desc{
+    margin-top:12px;
+    padding:12px 14px;
+    background:var(--teal-tint);
+    border-radius:8px;
+    font-size:13.5px;
+    line-height:1.5;
+    color:var(--ink);
+  }
+  .lp-benchmark-desc .lvl{font-weight:700;color:var(--teal-dark);margin-right:4px;}
+  .lp-benchmark-desc.empty{
+    background:none;border:1px dashed var(--line);color:var(--ink-soft);font-style:italic;
+  }
 
   .oral-image-wrap{text-align:center;margin-bottom:16px;}
   .oral-image-wrap img{max-width:100%;max-height:420px;border:1px solid var(--line);border-radius:8px;}
@@ -550,6 +634,43 @@ const AQUIFER_PASSAGE = [
   "The amount of ground water is called the water table. When more water is taken out than replaced by rain or melting snow, the water table drops. This has happened in Arizona. In many other places, people are using up ground water much too fast."
 ];
 
+// Alberta EAL Proficiency Benchmarks (LP levels 1–6) by language domain
+const LP_DOMAIN_BENCHMARKS = {
+  listening: [
+    "The student is learning to understand familiar routines, social situations, and instructions with support.",
+    "The student is learning to understand information in familiar social and subject-area situations. May use translation tools.",
+    "The student is learning to understand more details in familiar social and subject-area situations with support.",
+    "The student is learning to understand more details in new social and familiar subject-area situations with support.",
+    "The student is learning to understand more details in new social and subject-area situations.",
+    "The student is learning to understand a range of new subject-area information."
+  ],
+  speaking: [
+    "The student is learning to use familiar social and classroom words and phrases to share needs and ask questions with support.",
+    "The student is learning to use familiar words to ask and respond to questions and speak with classmates. May use translation tools.",
+    "The student is learning to use familiar words to ask and answer questions and speak on familiar subject-area topics.",
+    "The student is learning to use familiar words and some new words to express ideas and ask questions about familiar subject-area topics.",
+    "The student is learning to use more new words in detailed sentences to express ideas about new subject-area topics.",
+    "The student is learning to use many specific words in different social and subject-area situations."
+  ],
+  reading: [
+    "The student is learning to read word by word by sounding out familiar sight words and understand a few common words with visual support.",
+    "The student is learning to read and understand familiar words and simple sentences with support from visuals and home language(s).",
+    "The student is learning to understand familiar words and sentences using visual supports. Uses information to predict events or next steps.",
+    "The student is learning to understand main ideas and supporting details on familiar subject-area topics with support.",
+    "The student is learning to read familiar information with expression and understand new subject-area topics with support.",
+    "The student is learning to read a range of new information with expression and understand new subject-area topics and themes."
+  ],
+  writing: [
+    "The student is learning to copy familiar words and phrases and use in patterned sentences. May use a personal bilingual dictionary.",
+    "The student is learning to use familiar words and basic simple sentences with support from sentence frames.",
+    "The student is learning to use simple and familiar compound sentences in a paragraph on new topics with support from paragraph frames.",
+    "The student is learning to use compound sentences in sequenced paragraphs on familiar topics. Creates texts with support from graphic organizers.",
+    "The student is learning to use complex sentences and familiar descriptive words to create texts with support from references.",
+    "The student is learning to use new descriptive words and compound-complex sentences to create texts on many subject-area topics."
+  ]
+};
+
+const LP_DOMAIN_LABELS = { listening: "Listening", speaking: "Speaking", reading: "Reading", writing: "Writing" };
 
 const GATES_TOTALS = { comprehension: 48, vocabulary: 45 };
 
@@ -641,17 +762,18 @@ const ORAL_BEACH_IMAGE = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wB
 /* ---------- State ---------- */
 
 const state = {
-  student: { name:"", date:new Date().toISOString().slice(0,10), grade:"", homeLanguage:"" },
+  student: { name:"", date:new Date().toISOString().slice(0,10), grade:"", homeLanguage:"", countryOfOrigin:"" },
   interview: {},        // idx -> {val, notes}
   letters: { recite:{}, sounds:{} }, // letter -> 0/1/2
   colors: {},            // name -> 0/1/2
   shapes: {},             // name -> 0/1/2
   speaking: {},           // idx -> val
   sequencing: { days:"", months:"", countTo:"", notes:"" },
-  reading: { fluency:"", notes:"" },
+  reading: { fluency:"", notes:"", marks:{} },
   writing: { photo:null, checklist:{}, notes:"" },
   gates: { comprehension:"", vocabulary:"" },
-  oral: { level:null, answers:{}, observations:"", proficiencyResult:"" }
+  oral: { level:null, answers:{}, observations:"", proficiencyResult:"" },
+  lpBenchmarks: { listening:null, speaking:null, reading:null, writing:null }
 };
 
 const SECTIONS = [
@@ -695,10 +817,10 @@ function isSectionTouched(id){
     case 'letters': return Object.keys(state.letters.recite).length>0 || Object.keys(state.letters.sounds).length>0;
     case 'colors': return Object.keys(state.colors).length>0;
     case 'shapes': return Object.keys(state.shapes).length>0;
-    case 'speaking': return Object.keys(state.speaking).length>0;
+    case 'speaking': return Object.keys(state.speaking).length>0 || !!state.lpBenchmarks.listening || !!state.lpBenchmarks.speaking;
     case 'sequencing': return !!(state.sequencing.days||state.sequencing.months||state.sequencing.countTo);
-    case 'reading': return !!(state.reading.fluency||state.reading.notes);
-    case 'writing': return !!(state.writing.photo || Object.keys(state.writing.checklist).length>0);
+    case 'reading': return !!(state.reading.fluency||state.reading.notes||Object.keys(state.reading.marks||{}).length>0||state.lpBenchmarks.reading);
+    case 'writing': return !!(state.writing.photo || Object.keys(state.writing.checklist).length>0 || state.lpBenchmarks.writing);
     case 'gates': return !!(state.gates.comprehension || state.gates.vocabulary);
     case 'oral': return !!(state.oral.level && Object.keys(state.oral.answers[state.oral.level]||{}).length>0);
     default: return false;
@@ -756,12 +878,17 @@ function renderStudent(c){
         <label class="field-label">Home language(s)</label>
         <input type="text" id="f-lang" value="${escapeHtml(state.student.homeLanguage)}" placeholder="e.g. Tagalog">
       </div>
+      <div>
+        <label class="field-label">Country of origin</label>
+        <input type="text" id="f-country" value="${escapeHtml(state.student.countryOfOrigin)}" placeholder="e.g. Philippines">
+      </div>
     </div>`;
   c.appendChild(card);
   card.querySelector('#f-name').oninput = e=>{state.student.name=e.target.value; renderRail();};
   card.querySelector('#f-date').oninput = e=>state.student.date=e.target.value;
   card.querySelector('#f-grade').oninput = e=>state.student.grade=e.target.value;
   card.querySelector('#f-lang').oninput = e=>state.student.homeLanguage=e.target.value;
+  card.querySelector('#f-country').oninput = e=>state.student.countryOfOrigin=e.target.value;
 }
 
 function ratingRow(index, text, storeGetter, onSet){
@@ -871,8 +998,44 @@ function renderShapes(c){
   c.appendChild(card);
 }
 
+function buildLpBenchmarkCard(domain){
+  const card = document.createElement('div');
+  card.className = 'card lp-benchmark-card';
+  const label = LP_DOMAIN_LABELS[domain];
+  const levels = LP_DOMAIN_BENCHMARKS[domain];
+  const selected = state.lpBenchmarks[domain];
+
+  card.innerHTML = `<label class="field-label">${label} benchmark level</label>`;
+  const picker = document.createElement('div'); picker.className = 'level-picker';
+  for(let lvl=1; lvl<=6; lvl++){
+    const btn = document.createElement('button');
+    btn.className = 'level-btn' + (selected===lvl ? ' active' : '');
+    btn.textContent = lvl;
+    btn.onclick = ()=>{
+      state.lpBenchmarks[domain] = state.lpBenchmarks[domain]===lvl ? null : lvl;
+      renderContent(); renderRail();
+    };
+    picker.appendChild(btn);
+  }
+  card.appendChild(picker);
+
+  const desc = document.createElement('div');
+  if(selected){
+    desc.className = 'lp-benchmark-desc';
+    desc.innerHTML = `<span class="lvl">Level ${selected}</span>${escapeHtml(levels[selected-1])}`;
+  } else {
+    desc.className = 'lp-benchmark-desc empty';
+    desc.textContent = 'Select a level above to see its descriptor.';
+  }
+  card.appendChild(desc);
+
+  return card;
+}
+
 function renderSpeaking(c){
   sectionHead(c, "Speaking — repeat after me", "U = Understood · R = Rephrased · M = Multiple attempts / gestures");
+  c.appendChild(buildLpBenchmarkCard('listening'));
+  c.appendChild(buildLpBenchmarkCard('speaking'));
   const card = document.createElement('div'); card.className='card';
   SPEAKING_SENTENCES.forEach((s,i)=>{
     card.appendChild(ratingRow(i, s,
@@ -910,13 +1073,87 @@ function renderSequencing(c){
   card.querySelector('#seq-notes').oninput = e=>state.sequencing.notes=e.target.value;
 }
 
-function renderReading(c){
-  sectionHead(c, "Reading fluency", "Have the student read the passage aloud.");
-  const passageCard = document.createElement('div'); passageCard.className='card passage';
+const ANNOT_CYCLE = ["", "misread", "self-corrected", "skipped"];
+
+function tokenizeParagraph(text){
+  // Splits on whitespace while keeping the whitespace tokens, so spacing is preserved exactly.
+  return text.split(/(\s+)/).filter(t=>t.length>0);
+}
+
+function readingWordCount(){
+  let total = 0;
   AQUIFER_PASSAGE.forEach(p=>{
-    const el = document.createElement('p'); el.textContent = p; passageCard.appendChild(el);
+    tokenizeParagraph(p).forEach(tok=>{ if(!/^\s+$/.test(tok)) total++; });
+  });
+  return total;
+}
+
+function readingTally(){
+  const marks = state.reading.marks || {};
+  const out = { misread:0, "self-corrected":0, skipped:0 };
+  Object.values(marks).forEach(v=>{ if(out.hasOwnProperty(v)) out[v]++; });
+  const total = readingWordCount();
+  const errors = out.misread + out.skipped;
+  const accuracy = total>0 ? Math.round(((total-errors)/total)*100) : 0;
+  return { ...out, total, errors, accuracy };
+}
+
+function renderReading(c){
+  sectionHead(c, "Reading fluency", "Tap a word each time the student misreads, self-corrects, or skips it. Tap again to cycle or clear.");
+
+  c.appendChild(buildLpBenchmarkCard('reading'));
+
+  const legendCard = document.createElement('div'); legendCard.className='card';
+  legendCard.innerHTML = `
+    <div class="annot-legend">
+      <span><span class="dot misread"></span>Misread</span>
+      <span><span class="dot self-corrected"></span>Self-corrected</span>
+      <span><span class="dot skipped"></span>Skipped</span>
+      <span style="color:var(--ink-soft);">Tap a word to cycle through these, tap a 4th time to clear.</span>
+    </div>
+  `;
+  c.appendChild(legendCard);
+
+  const passageCard = document.createElement('div'); passageCard.className='card annot-passage';
+  AQUIFER_PASSAGE.forEach((p,pi)=>{
+    const para = document.createElement('p');
+    let wi = 0;
+    tokenizeParagraph(p).forEach(tok=>{
+      if(/^\s+$/.test(tok)){
+        para.appendChild(document.createTextNode(tok));
+      } else {
+        const key = `p${pi}_w${wi}`;
+        wi++;
+        const span = document.createElement('span');
+        span.className = 'annot-word';
+        span.textContent = tok;
+        const mark = state.reading.marks[key] || "";
+        if(mark) span.dataset.mark = mark;
+        span.onclick = ()=>{
+          const current = state.reading.marks[key] || "";
+          const idx = ANNOT_CYCLE.indexOf(current);
+          const next = ANNOT_CYCLE[(idx+1) % ANNOT_CYCLE.length];
+          if(next) state.reading.marks[key] = next; else delete state.reading.marks[key];
+          renderContent();
+        };
+        para.appendChild(span);
+      }
+    });
+    passageCard.appendChild(para);
   });
   c.appendChild(passageCard);
+
+  const tally = readingTally();
+  const tallyCard = document.createElement('div'); tallyCard.className='card';
+  tallyCard.innerHTML = `
+    <div class="annot-tally">
+      <div class="item misread"><span class="n">${tally.misread}</span><span class="lbl">Misread</span></div>
+      <div class="item self-corrected"><span class="n">${tally["self-corrected"]}</span><span class="lbl">Self-corrected</span></div>
+      <div class="item skipped"><span class="n">${tally.skipped}</span><span class="lbl">Skipped</span></div>
+      <div class="item accuracy"><span class="n">${tally.accuracy}%</span><span class="lbl">Accuracy (${tally.total-tally.errors}/${tally.total} words)</span></div>
+    </div>
+  `;
+  c.appendChild(tallyCard);
 
   const notesCard = document.createElement('div'); notesCard.className='card';
   notesCard.innerHTML = `
@@ -932,6 +1169,8 @@ function renderReading(c){
 
 function renderWriting(c){
   sectionHead(c, "Writing", "Prompt: \u201cWrite a paragraph about something that you like to do, or about your summer.\u201d");
+
+  c.appendChild(buildLpBenchmarkCard('writing'));
 
   const upCard = document.createElement('div'); upCard.className='card';
   upCard.innerHTML = `<label class="field-label">Writing sample photo</label>`;
@@ -1133,9 +1372,11 @@ function renderReview(c){
     ["Grade", state.student.grade || "—"],
     ["Date", state.student.date || "—"],
     ["Home language", state.student.homeLanguage || "—"],
+    ["Country of origin", state.student.countryOfOrigin || "—"],
     ["Interview answered", `${Object.keys(state.interview).filter(k=>k!=='notes').length} / ${INTERVIEW_QUESTIONS.length}`],
     ["Speaking answered", `${Object.keys(state.speaking).length} / ${SPEAKING_SENTENCES.length}`],
     ["Letters marked", `${Object.keys(state.letters.recite).length + Object.keys(state.letters.sounds).length} / 52`],
+    ["Reading accuracy", Object.keys(state.reading.marks||{}).length>0 ? `${readingTally().accuracy}%` : "Not annotated"],
     ["Writing photo", state.writing.photo ? "Attached" : "Not attached"],
     ["Gates — Comprehension", state.gates.comprehension ? `${state.gates.comprehension}/${GATES_TOTALS.comprehension}` : "—"],
     ["Gates — Vocabulary", state.gates.vocabulary ? `${state.gates.vocabulary}/${GATES_TOTALS.vocabulary}` : "—"],
@@ -1193,6 +1434,12 @@ function buildPayload(){
       score: state.oral.level ? oralScoreFor(state.oral.level).correct : null,
       proficiencyResult: state.oral.proficiencyResult || (state.oral.level ? suggestedProficiencyResult(state.oral.level, oralScoreFor(state.oral.level).correct) : ""),
       observations: state.oral.observations
+    },
+    lpBenchmarks: {
+      listening: state.lpBenchmarks.listening,
+      speaking: state.lpBenchmarks.speaking,
+      reading: state.lpBenchmarks.reading,
+      writing: state.lpBenchmarks.writing
     }
   };
 }
@@ -1256,6 +1503,7 @@ function buildPrintStudentPage(){
       <tr><td class="qcell" style="width:30%;font-weight:600;">Date</td><td>${escapeHtml(s.date||"—")}</td></tr>
       <tr><td class="qcell" style="width:30%;font-weight:600;">Grade</td><td>${escapeHtml(s.grade||"—")}</td></tr>
       <tr><td class="qcell" style="width:30%;font-weight:600;">Home language(s)</td><td>${escapeHtml(s.homeLanguage||"—")}</td></tr>
+      <tr><td class="qcell" style="width:30%;font-weight:600;">Country of origin</td><td>${escapeHtml(s.countryOfOrigin||"—")}</td></tr>
     </tbody></table>
   </section>`;
 }
@@ -1306,9 +1554,19 @@ function buildPrintColorsShapesPage(){
   </section>`;
 }
 
+function printLpBenchmarkBox(domain){
+  const selected = state.lpBenchmarks[domain];
+  const label = LP_DOMAIN_LABELS[domain];
+  if(!selected) return "";
+  const desc = LP_DOMAIN_BENCHMARKS[domain][selected-1];
+  return `<div class="print-lp-benchmark"><span class="domain">${label}:</span><span class="lvl">Level ${selected}</span> — ${escapeHtml(desc)}</div>`;
+}
+
 function buildPrintSpeakingPage(){
   return `<section class="print-page">
     ${printHeader("Speaking — repeat after me", "U = Understood &nbsp; R = Rephrased &nbsp; M = Multiple attempts / gestures")}
+    ${printLpBenchmarkBox('listening')}
+    ${printLpBenchmarkBox('speaking')}
     ${printQuestionTable(SPEAKING_SENTENCES, state.speaking, true)}
   </section>`;
 }
@@ -1328,12 +1586,41 @@ function buildPrintSequencingPage(){
 
 function buildPrintReadingPage(){
   const r = state.reading;
-  let passageHtml = '<div class="print-passage">';
-  AQUIFER_PASSAGE.forEach(p=>{ passageHtml += `<p>${escapeHtml(p)}</p>`; });
+  const marks = r.marks || {};
+
+  let passageHtml = '<div class="print-annot-passage">';
+  AQUIFER_PASSAGE.forEach((p,pi)=>{
+    passageHtml += '<p>';
+    let wi = 0;
+    tokenizeParagraph(p).forEach(tok=>{
+      if(/^\s+$/.test(tok)){
+        passageHtml += tok;
+      } else {
+        const key = `p${pi}_w${wi}`;
+        wi++;
+        const mark = marks[key] || "";
+        const cls = mark ? `print-annot-word ${mark}` : "print-annot-word";
+        passageHtml += `<span class="${cls}">${escapeHtml(tok)}</span>`;
+      }
+    });
+    passageHtml += '</p>';
+  });
   passageHtml += '</div>';
+
+  const tally = readingTally();
+  const tallyHtml = `
+    <div class="print-annot-tally">
+      <span><b>${tally.misread}</b> misread</span>
+      <span><b>${tally["self-corrected"]}</b> self-corrected</span>
+      <span><b>${tally.skipped}</b> skipped</span>
+      <span><b>${tally.accuracy}%</b> accuracy (${tally.total-tally.errors}/${tally.total} words)</span>
+    </div>`;
+
   return `<section class="print-page">
-    ${printHeader("Reading fluency")}
+    ${printHeader("Reading fluency", "Wavy underline = misread &nbsp; · &nbsp; underline = self-corrected &nbsp; · &nbsp; strikethrough = skipped")}
+    ${printLpBenchmarkBox('reading')}
     ${passageHtml}
+    ${tallyHtml}
     ${r.fluency ? `<div class="print-notes"><span class="lbl">Fluency observations</span>${escapeHtml(r.fluency)}</div>` : ""}
     ${r.notes ? `<div class="print-notes"><span class="lbl">Additional notes</span>${escapeHtml(r.notes)}</div>` : ""}
   </section>`;
@@ -1359,6 +1646,7 @@ function buildPrintWritingPage(){
 
   return `<section class="print-page">
     ${printHeader("Writing", `Prompt: "Write a paragraph about something that you like to do, or about your summer."`)}
+    ${printLpBenchmarkBox('writing')}
     ${photoHtml}
     <table class="print-table" style="margin-top:16px;"><tbody>${checklistRows}</tbody></table>
     ${w.notes ? `<div class="print-notes"><span class="lbl">Writing notes</span>${escapeHtml(w.notes)}</div>` : ""}
@@ -1449,12 +1737,13 @@ function downloadBackup(){
 }
 
 function resetState(){
-  state.student = { name:"", date:new Date().toISOString().slice(0,10), grade:"", homeLanguage:"" };
+  state.student = { name:"", date:new Date().toISOString().slice(0,10), grade:"", homeLanguage:"", countryOfOrigin:"" };
   state.interview = {}; state.letters = {recite:{},sounds:{}}; state.colors = {}; state.shapes = {};
   state.speaking = {}; state.sequencing = {days:"",months:"",countTo:"",notes:""};
-  state.reading = {fluency:"",notes:""}; state.writing = {photo:null,checklist:{},notes:""};
+  state.reading = {fluency:"",notes:"",marks:{}}; state.writing = {photo:null,checklist:{},notes:""};
   state.gates = {comprehension:"",vocabulary:""};
   state.oral = {level:null,answers:{},observations:"",proficiencyResult:""};
+  state.lpBenchmarks = {listening:null,speaking:null,reading:null,writing:null};
   current = 0;
   render();
 }
